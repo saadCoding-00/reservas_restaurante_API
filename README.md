@@ -81,6 +81,10 @@ Este proyecto es una API REST para gestionar clientes, mesas, reservas y estadí
 ### Swagger (docs)
 ![Swagger clientes y mesas](imagenes/swagger-clientes-mesas.png)
 ![Swagger reservas y estadísticas](imagenes/swagger-reservas-estadisticas.png)
+![Swagger ocupación diaria](imagenes/Endpoint-%3Aocupacion%20diaria.png)
+![Swagger ocupación semanal](imagenes/Endpoint-%3Aocupacion%20semanal.png)
+![Swagger clientes frecuentes](imagenes/Endpoint-clientesFrecuentes.png)
+![Swagger mesas populares](imagenes/Endpoint-%3Amesas-populares.png)
 ![Swagger schemas](imagenes/swagger-default-shemas.png)
 
 ## Autor y fecha

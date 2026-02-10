@@ -9,7 +9,7 @@ def obtener_ocupacion_diaria(fecha: str):
     consulta = """
     SELECT
         COUNT(*) as total_reservas,
-        COALESCE(SUM(numero_comensales), 0) as total_comensales
+        COALESCE(SUM(num_comensales), 0) as total_comensales
     FROM reservas
     WHERE DATE(fecha_hora_inicio) = DATE(?)
       AND estado IN ('pendiente', 'confirmada', 'completada')
