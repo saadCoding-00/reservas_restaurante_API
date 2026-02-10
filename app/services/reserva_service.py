@@ -9,6 +9,7 @@ from app.exceptions.custom_exceptions import (
 from datetime import datetime, timedelta
 from typing import Optional
 
+# Funciones para manejar reservas: crear, actualizar, cancelar, confirmar llegada, marcar como completada, obtener reservas por filtros o por id
 def obtener_reservas(fecha: Optional[str] = None, cliente_id: Optional[int] = None, mesa_id: Optional[int] = None, estado: Optional[str] = None):
     consulta = "SELECT * FROM reservas WHERE 1=1"
     parametros = []
@@ -28,21 +29,25 @@ def obtener_reservas(fecha: Optional[str] = None, cliente_id: Optional[int] = No
 
     return obtener_todos(consulta, tuple(parametros))
 
+# Función para obtener una reserva por su id
 def obtener_reserva_por_id(reserva_id: int):
     consulta = "SELECT * FROM reservas WHERE id = ?"
     return obtener_uno(consulta, (reserva_id,))
 
+# Función para crear una nueva reserva, con validaciones de cliente, mesa, capacidad y solapamiento de horarios
 def _asegurar_datetime(valor):
     if isinstance(valor, str):
         return datetime.fromisoformat(valor)
     return valor
 
+# Función para validar que el cliente existe
 def _validar_cliente(cliente_id: int):
     consulta_cliente = "SELECT * FROM clientes WHERE id = ?"
     cliente = obtener_uno(consulta_cliente, (cliente_id,))
     if not cliente:
         raise ClienteNoEncontradoError("No existe un cliente con ese id")
 
+# Función para validar que la mesa existe y está activa
 def _validar_mesa_activa(mesa_id: int):
     consulta_mesa = "SELECT * FROM mesas WHERE id = ?"
     mesa = obtener_uno(consulta_mesa, (mesa_id,))
@@ -53,6 +58,7 @@ def _validar_mesa_activa(mesa_id: int):
         raise MesaNoExisteError("La mesa no está activa")
     return mesa
 
+# Función para validar que no hay reservas solapadas para la misma mesa en el mismo horario
 def _validar_reserva_solapada(mesa_id: int, fecha_inicio: datetime, fecha_fin: datetime, reserva_id: Optional[int] = None):
     consulta_reservas = """
     SELECT * FROM reservas
@@ -69,6 +75,7 @@ def _validar_reserva_solapada(mesa_id: int, fecha_inicio: datetime, fecha_fin: d
     if reservas_existentes:
         raise ReservaSolapadaError("Ya existe una reserva para esa mesa en ese horario")
 
+# Función para crear una nueva reserva, con validaciones de cliente, mesa, capacidad y solapamiento de horarios
 def crear_reserva(reserva: ReservaCreate):
     _validar_cliente(reserva.cliente_id)
     mesa = _validar_mesa_activa(reserva.mesa_id)
@@ -105,7 +112,8 @@ def crear_reserva(reserva: ReservaCreate):
         "SELECT * FROM reservas WHERE cliente_id = ? AND mesa_id = ? AND fecha_inicio = ?",
         (reserva.cliente_id, reserva.mesa_id, fecha_inicio)
     )
-    
+
+# Función para actualizar una reserva existente, con validaciones de cliente, mesa, capacidad y solapamiento de horarios    
 def actualizar_reserva(reserva_id: int, datos_actualizados: ReservaUpdate):
     reserva_actual = obtener_reserva_por_id(reserva_id)
     if not reserva_actual:
@@ -150,6 +158,7 @@ def actualizar_reserva(reserva_id: int, datos_actualizados: ReservaUpdate):
 
     return obtener_reserva_por_id(reserva_id)
 
+# Función para cancelar una reserva (cambia el estado a 'cancelada')
 def cancelar_reserva(reserva_id: int):
     update = """
     UPDATE reservas
@@ -158,6 +167,8 @@ def cancelar_reserva(reserva_id: int):
     """
     ejecutar_consulta(update, (reserva_id,))
     return obtener_reserva_por_id(reserva_id)
+
+# Función para confirmar la llegada del cliente (cambia el estado a 'confirmada')
 def confirmar_llegada_cliente_patch(reserva_id: int):
     update = """
     UPDATE reservas
@@ -167,6 +178,7 @@ def confirmar_llegada_cliente_patch(reserva_id: int):
     ejecutar_consulta(update, (reserva_id,))
     return obtener_reserva_por_id(reserva_id)
 
+# Función para marcar una reserva como completada (cambia el estado a 'completada')
 def marcar_reserva_como_completada_patch(reserva_id: int):
     update = """
     UPDATE reservas
