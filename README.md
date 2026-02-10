@@ -67,6 +67,22 @@ Este proyecto es una API REST para gestionar clientes, mesas, reservas y estadí
 - GET /estadisticas/mesas-populares
 - GET /estadisticas/resumen
 
+## Capturas del funcionamiento
+
+### Endpoints en la web
+![Listado de clientes](imagenes/Endpoint-%3Aclientes.png)
+![Detalle de cliente](imagenes/Endpoint-%3Aclientes%3Aid.png)
+![Listado de mesas](imagenes/Endpoint-%3Amesas.png)
+![Detalle de mesa](imagenes/Endpoint-%3Amesas%3Aid.png)
+![Listado de reservas](imagenes/Endpoint-%3Areservas.png)
+![Detalle de reserva](imagenes/Endpoint-%3Areservas%3Aid.png)
+![Estadísticas](imagenes/Endpoint-%3Aestadisticas.png)
+
+### Swagger (docs)
+![Swagger clientes y mesas](imagenes/swagger-clientes-mesas.png)
+![Swagger reservas y estadísticas](imagenes/swagger-reservas-estadisticas.png)
+![Swagger schemas](imagenes/swagger-default-shemas.png)
+
 ## Autor y fecha
 
 Autor: Saad Faham

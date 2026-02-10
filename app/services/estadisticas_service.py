@@ -17,8 +17,8 @@ def obtener_ocupacion_diaria(fecha: str):
     resultado = obtener_uno(consulta, (fecha,))
     return {
         "fecha": fecha,
-        "total_reservas": resultado[0] if resultado else 0,
-        "total_comensales": resultado[1] if resultado else 0,
+        "total_reservas": resultado["total_reservas"] if resultado else 0,
+        "total_comensales": resultado["total_comensales"] if resultado else 0,
     }
 
 # Función para calcular la ocupación semanal
@@ -40,7 +40,8 @@ def obtener_ocupacion_semanal(fecha_inicio: str):
         "fecha_inicio": inicio.isoformat(),
         "fecha_fin": fin.isoformat(),
         "ocupacion": [
-            {"fecha": fila[0], "total_reservas": fila[1]} for fila in (filas or [])
+            {"fecha": fila["fecha"], "total_reservas": fila["total_reservas"]}
+            for fila in (filas or [])
         ],
     }
 
@@ -56,7 +57,8 @@ def obtener_clientes_frecuentes():
     """
     filas = obtener_todos(consulta)
     return [
-        {"cliente_id": fila[0], "total_reservas": fila[1]} for fila in (filas or [])
+        {"cliente_id": fila["cliente_id"], "total_reservas": fila["total_reservas"]}
+        for fila in (filas or [])
     ]
 
 # Función para obtener las mesas más populares
@@ -70,7 +72,8 @@ def obtener_mesas_populares():
     """
     filas = obtener_todos(consulta)
     return [
-        {"mesa_id": fila[0], "total_reservas": fila[1]} for fila in (filas or [])
+        {"mesa_id": fila["mesa_id"], "total_reservas": fila["total_reservas"]}
+        for fila in (filas or [])
     ]
 
 # Función para obtener un resumen general de reservas
@@ -95,9 +98,9 @@ def obtener_resumen_general():
             "total_confirmadas": 0,
         }
     return {
-        "total_reservas": fila[0],
-        "total_canceladas": fila[1],
-        "total_completadas": fila[2],
-        "total_pendientes": fila[3],
-        "total_confirmadas": fila[4],
+        "total_reservas": fila["total_reservas"],
+        "total_canceladas": fila["total_canceladas"],
+        "total_completadas": fila["total_completadas"],
+        "total_pendientes": fila["total_pendientes"],
+        "total_confirmadas": fila["total_confirmadas"],
     }

@@ -12,6 +12,12 @@ from app.services.estadisticas_service import (
 
 router = APIRouter(prefix="/estadisticas", tags=["Estadisticas"])
 
+# Endpoint raíz de estadísticas
+@router.get("/")
+def estadisticas_root():
+	"""Devuelve un resumen general de estadísticas."""
+	return obtener_resumen_general()
+
 # Endpoint para obtener la ocupación diaria
 @router.get("/ocupacion/diaria")
 def ocupacion_diaria(fecha: str):
