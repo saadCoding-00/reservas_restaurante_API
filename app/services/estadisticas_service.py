@@ -11,7 +11,7 @@ def obtener_ocupacion_diaria(fecha: str):
         COUNT(*) as total_reservas,
         COALESCE(SUM(numero_comensales), 0) as total_comensales
     FROM reservas
-    WHERE DATE(fecha_inicio) = DATE(?)
+    WHERE DATE(fecha_hora_inicio) = DATE(?)
       AND estado IN ('pendiente', 'confirmada', 'completada')
     """
     resultado = obtener_uno(consulta, (fecha,))
@@ -28,12 +28,12 @@ def obtener_ocupacion_semanal(fecha_inicio: str):
     fin = inicio + timedelta(days=6)
 
     consulta = """
-    SELECT DATE(fecha_inicio) as fecha, COUNT(*) as total_reservas
+    SELECT DATE(fecha_hora_inicio) as fecha, COUNT(*) as total_reservas
     FROM reservas
-    WHERE DATE(fecha_inicio) BETWEEN DATE(?) AND DATE(?)
+    WHERE DATE(fecha_hora_inicio) BETWEEN DATE(?) AND DATE(?)
       AND estado IN ('pendiente', 'confirmada', 'completada')
-    GROUP BY DATE(fecha_inicio)
-    ORDER BY DATE(fecha_inicio)
+    GROUP BY DATE(fecha_hora_inicio)
+    ORDER BY DATE(fecha_hora_inicio)
     """
     filas = obtener_todos(consulta, (inicio.isoformat(), fin.isoformat()))
     return {

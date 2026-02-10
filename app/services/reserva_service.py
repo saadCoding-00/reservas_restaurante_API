@@ -14,11 +14,19 @@ from typing import Optional
 # Funciones para manejar reservas: crear, actualizar, cancelar, confirmar llegada, marcar como completada, obtener reservas por filtros o por id
 def obtener_reservas(fecha: Optional[str] = None, cliente_id: Optional[int] = None, mesa_id: Optional[int] = None, estado: Optional[str] = None):
     """Lista reservas con filtros opcionales."""
-    consulta = "SELECT * FROM reservas WHERE 1=1"
+    consulta = """
+        SELECT id, cliente_id, mesa_id,
+            fecha_hora_inicio AS fecha_inicio,
+            fecha_hora_fin AS fecha_fin,
+            num_comensales AS numero_comensales,
+            estado, notas, fecha_creacion
+        FROM reservas
+        WHERE 1=1
+        """
     parametros = []
 
     if fecha:
-        consulta += " AND DATE(fecha_inicio) = DATE(?)"
+        consulta += " AND DATE(fecha_hora_inicio) = DATE(?)"
         parametros.append(fecha)
     if cliente_id:
         consulta += " AND cliente_id = ?"
@@ -35,7 +43,15 @@ def obtener_reservas(fecha: Optional[str] = None, cliente_id: Optional[int] = No
 # Función para obtener una reserva por su id
 def obtener_reserva_por_id(reserva_id: int):
     """Obtiene una reserva por su id."""
-    consulta = "SELECT * FROM reservas WHERE id = ?"
+    consulta = """
+        SELECT id, cliente_id, mesa_id,
+            fecha_hora_inicio AS fecha_inicio,
+            fecha_hora_fin AS fecha_fin,
+            num_comensales AS numero_comensales,
+            estado, notas, fecha_creacion
+        FROM reservas
+        WHERE id = ?
+        """
     return obtener_uno(consulta, (reserva_id,))
 
 # Función para crear una nueva reserva, con validaciones de cliente, mesa, capacidad y solapamiento de horarios
@@ -60,7 +76,7 @@ def _validar_mesa_activa(mesa_id: int):
     mesa = obtener_uno(consulta_mesa, (mesa_id,))
     if not mesa:
         raise MesaNoExisteError("No existe una mesa con esa información")
-    mesa_activa = mesa[4]
+    mesa_activa = mesa["activa"] if isinstance(mesa, dict) else mesa[4]
     if not mesa_activa:
         raise MesaNoExisteError("La mesa no está activa")
     return mesa
@@ -69,12 +85,12 @@ def _validar_mesa_activa(mesa_id: int):
 def _validar_reserva_solapada(mesa_id: int, fecha_inicio: datetime, fecha_fin: datetime, reserva_id: Optional[int] = None):
     """Valida que no haya solapamiento de reservas."""
     consulta_reservas = """
-    SELECT * FROM reservas
-    WHERE mesa_id = ?
-      AND estado IN ('pendiente', 'confirmada')
-      AND fecha_inicio < ?
-      AND fecha_fin > ?
-    """
+        SELECT * FROM reservas
+        WHERE mesa_id = ?
+            AND estado IN ('pendiente', 'confirmada')
+            AND fecha_hora_inicio < ?
+            AND fecha_hora_fin > ?
+        """
     parametros = [mesa_id, fecha_fin, fecha_inicio]
     if reserva_id is not None:
         consulta_reservas += " AND id != ?"
@@ -89,7 +105,7 @@ def crear_reserva(reserva: ReservaCreate):
     _validar_cliente(reserva.cliente_id)
     mesa = _validar_mesa_activa(reserva.mesa_id)
 
-    capacidad_mesa = mesa[2]
+    capacidad_mesa = mesa["capacidad"] if isinstance(mesa, dict) else mesa[2]
     if reserva.numero_comensales > capacidad_mesa:
         raise CapacidadExcedidaError("El número de comensales excede la capacidad de la mesa")
 
@@ -103,7 +119,7 @@ def crear_reserva(reserva: ReservaCreate):
     fecha_creacion = datetime.now(fecha_inicio.tzinfo)
 
     insert = """
-    INSERT INTO reservas (cliente_id, mesa_id, fecha_inicio, fecha_fin, numero_comensales, estado, notas, fecha_creacion)
+    INSERT INTO reservas (cliente_id, mesa_id, fecha_hora_inicio, fecha_hora_fin, num_comensales, estado, notas, fecha_creacion)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """
     ejecutar_consulta(insert, (
@@ -118,7 +134,15 @@ def crear_reserva(reserva: ReservaCreate):
     ))
 
     return obtener_uno(
-        "SELECT * FROM reservas WHERE cliente_id = ? AND mesa_id = ? AND fecha_inicio = ?",
+         """
+         SELECT id, cliente_id, mesa_id,
+             fecha_hora_inicio AS fecha_inicio,
+             fecha_hora_fin AS fecha_fin,
+             num_comensales AS numero_comensales,
+             estado, notas, fecha_creacion
+         FROM reservas
+         WHERE cliente_id = ? AND mesa_id = ? AND fecha_hora_inicio = ?
+         """,
         (reserva.cliente_id, reserva.mesa_id, fecha_inicio)
     )
 
@@ -129,12 +153,12 @@ def actualizar_reserva(reserva_id: int, datos_actualizados: ReservaUpdate):
     if not reserva_actual:
         return None
 
-    cliente_id = datos_actualizados.cliente_id if datos_actualizados.cliente_id is not None else reserva_actual[1]
-    mesa_id = datos_actualizados.mesa_id if datos_actualizados.mesa_id is not None else reserva_actual[2]
-    fecha_inicio = datos_actualizados.fecha_inicio if datos_actualizados.fecha_inicio is not None else reserva_actual[3]
-    numero_comensales = datos_actualizados.numero_comensales if datos_actualizados.numero_comensales is not None else reserva_actual[5]
-    estado = datos_actualizados.estado if datos_actualizados.estado is not None else reserva_actual[6]
-    notas = datos_actualizados.notas if datos_actualizados.notas is not None else reserva_actual[7]
+    cliente_id = datos_actualizados.cliente_id if datos_actualizados.cliente_id is not None else reserva_actual["cliente_id"]
+    mesa_id = datos_actualizados.mesa_id if datos_actualizados.mesa_id is not None else reserva_actual["mesa_id"]
+    fecha_inicio = datos_actualizados.fecha_inicio if datos_actualizados.fecha_inicio is not None else reserva_actual["fecha_inicio"]
+    numero_comensales = datos_actualizados.numero_comensales if datos_actualizados.numero_comensales is not None else reserva_actual["numero_comensales"]
+    estado = datos_actualizados.estado if datos_actualizados.estado is not None else reserva_actual["estado"]
+    notas = datos_actualizados.notas if datos_actualizados.notas is not None else reserva_actual["notas"]
 
     _validar_cliente(cliente_id)
     mesa = _validar_mesa_activa(mesa_id)
@@ -143,7 +167,7 @@ def actualizar_reserva(reserva_id: int, datos_actualizados: ReservaUpdate):
     if fecha_inicio <= datetime.now(fecha_inicio.tzinfo):
         raise ValueError("La fecha de inicio debe ser futura")
 
-    capacidad_mesa = mesa[2]
+    capacidad_mesa = mesa["capacidad"] if isinstance(mesa, dict) else mesa[2]
     if numero_comensales > capacidad_mesa:
         raise CapacidadExcedidaError("El número de comensales excede la capacidad de la mesa")
 
@@ -152,7 +176,7 @@ def actualizar_reserva(reserva_id: int, datos_actualizados: ReservaUpdate):
 
     update = """
     UPDATE reservas
-    SET cliente_id = ?, mesa_id = ?, fecha_inicio = ?, fecha_fin = ?, numero_comensales = ?, estado = ?, notas = ?
+    SET cliente_id = ?, mesa_id = ?, fecha_hora_inicio = ?, fecha_hora_fin = ?, num_comensales = ?, estado = ?, notas = ?
     WHERE id = ?
     """
     ejecutar_consulta(update, (
