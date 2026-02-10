@@ -1,3 +1,5 @@
+"""Modelos de reserva."""
+
 from pydantic import BaseModel, Field, validator
 from typing import Optional, Literal
 from datetime import datetime, timedelta
@@ -7,6 +9,7 @@ from datetime import datetime, timedelta
 # Modelo base (común)
 # -----------------------
 class ReservaBase(BaseModel):
+	"""Campos comunes de una reserva."""
 	cliente_id: int = Field(..., ge=1)
 	mesa_id: int = Field(..., ge=1)
 	fecha_inicio: datetime
@@ -19,6 +22,7 @@ class ReservaBase(BaseModel):
 # Para crear reserva (POST)
 # -----------------------
 class ReservaCreate(ReservaBase):
+	"""Modelo para crear una reserva."""
 	@validator("fecha_inicio")
 	def fecha_inicio_futura(cls, value: datetime) -> datetime:
 		if value <= datetime.now(value.tzinfo):
@@ -30,6 +34,7 @@ class ReservaCreate(ReservaBase):
 # Para actualizar reserva (PUT)
 # -----------------------
 class ReservaUpdate(BaseModel):
+	"""Modelo para actualizar una reserva."""
 	cliente_id: Optional[int] = Field(None, ge=1)
 	mesa_id: Optional[int] = Field(None, ge=1)
 	fecha_inicio: Optional[datetime] = None
@@ -48,6 +53,7 @@ class ReservaUpdate(BaseModel):
 # Para respuestas (GET)
 # -----------------------
 class ReservaResponse(ReservaBase):
+	"""Modelo de respuesta para reserva."""
 	id: int
 	fecha_fin: datetime
 	fecha_creacion: datetime

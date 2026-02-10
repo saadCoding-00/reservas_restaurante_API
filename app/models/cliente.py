@@ -1,3 +1,5 @@
+"""Modelos de cliente."""
+
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from datetime import datetime
@@ -8,6 +10,7 @@ from datetime import datetime
 # Aqui van los campos comun
 # -----------------------
 class ClienteBase(BaseModel):
+    """Campos comunes del cliente."""
     nombre: str = Field(..., min_length=3) # ... significa obligatorio
     email: EmailStr # EmailStr significa debe ser un email valido y pydantic lo valida
     telefono: str = Field(..., min_length=9, max_length=9)
@@ -20,6 +23,7 @@ class ClienteBase(BaseModel):
 # y si lo ponen la base de datos entonces no hay que ponerlos
 # -----------------------
 class ClienteCreate(ClienteBase):
+    """Modelo para crear un cliente."""
     pass #Aquí no añado nada nuevo, pero la clase debe existir.
 
 
@@ -29,6 +33,7 @@ class ClienteCreate(ClienteBase):
 # Por eso todos los campos son opcionales
 # -----------------------
 class ClienteUpdate(BaseModel):
+    """Modelo para actualizar un cliente."""
     nombre: Optional[str] = Field(None, min_length=3) # None significa que es opcional 
     email: Optional[EmailStr] = None
     telefono: Optional[str] = Field(None, min_length=9, max_length=9)
@@ -41,6 +46,7 @@ class ClienteUpdate(BaseModel):
 # Aqui se aparecen id y fecha porque se generan auto en la base de datos
 # -----------------------
 class ClienteResponse(ClienteBase):
+    """Modelo de respuesta para cliente."""
     id: int
     fecha_registro: datetime
 

@@ -1,8 +1,11 @@
+"""Servicios de estadísticas."""
+
 from datetime import datetime, timedelta
 from app.database import obtener_todos, obtener_uno
 
-
+# Funcion para calcular la ocupación diaria, semanal, clientes frecuentes, mesas populares y resumen general de reservas
 def obtener_ocupacion_diaria(fecha: str):
+    """Calcula la ocupación de un día."""
     consulta = """
     SELECT
         COUNT(*) as total_reservas,
@@ -18,8 +21,9 @@ def obtener_ocupacion_diaria(fecha: str):
         "total_comensales": resultado[1] if resultado else 0,
     }
 
-
+# Función para calcular la ocupación semanal
 def obtener_ocupacion_semanal(fecha_inicio: str):
+    """Calcula la ocupación de una semana completa."""
     inicio = datetime.fromisoformat(fecha_inicio).date()
     fin = inicio + timedelta(days=6)
 
@@ -40,8 +44,9 @@ def obtener_ocupacion_semanal(fecha_inicio: str):
         ],
     }
 
-
+# Función para obtener los clientes más frecuentes
 def obtener_clientes_frecuentes():
+    """Devuelve el top 10 de clientes con más reservas."""
     consulta = """
     SELECT cliente_id, COUNT(*) as total_reservas
     FROM reservas
@@ -54,8 +59,9 @@ def obtener_clientes_frecuentes():
         {"cliente_id": fila[0], "total_reservas": fila[1]} for fila in (filas or [])
     ]
 
-
+# Función para obtener las mesas más populares
 def obtener_mesas_populares():
+    """Devuelve las mesas más reservadas."""
     consulta = """
     SELECT mesa_id, COUNT(*) as total_reservas
     FROM reservas
@@ -67,8 +73,9 @@ def obtener_mesas_populares():
         {"mesa_id": fila[0], "total_reservas": fila[1]} for fila in (filas or [])
     ]
 
-
+# Función para obtener un resumen general de reservas
 def obtener_resumen_general():
+    """Devuelve un resumen general de reservas."""
     consulta = """
     SELECT
         COUNT(*) as total_reservas,

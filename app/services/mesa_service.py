@@ -1,13 +1,17 @@
+"""Servicios de mesas."""
+
 from app.database import ejecutar_consulta, obtener_uno, obtener_todos
 from app.models.mesa import MesaCreate
 from app.exceptions.custom_exceptions import MesaNoExisteError, MesaYaExisteError
 
 
 def obtener_todas_mesas():
+    """Obtiene la lista completa de mesas."""
     consulta = "SELECT * FROM mesas"
     return obtener_todos(consulta)
 
 def obtener_mesa_por_id(mesa_id: int):
+    """Obtiene una mesa por su id."""
         # 1. Comprobar si existe id
     consulta = "SELECT * FROM mesas WHERE id = ?"
     mesa = obtener_uno(consulta, (mesa_id,))
@@ -16,6 +20,7 @@ def obtener_mesa_por_id(mesa_id: int):
     return mesa
 
 def crear_mesa(mesa: MesaCreate):
+    """Crea una mesa si el número no existe."""
     # 1. Comprobar si ya existe numero_mesa
     consulta = "SELECT * FROM mesas WHERE numero = ?"
     existente = obtener_uno(consulta, (mesa.numero,))
@@ -39,6 +44,7 @@ def crear_mesa(mesa: MesaCreate):
     return obtener_uno("SELECT * FROM mesas WHERE numero = ?", (mesa.numero,))
 
 def actualizar_mesa(mesa_id: int, datos_actualizados: MesaCreate):
+    """Actualiza los datos de una mesa."""
     # 1. Comprobar si existe id
     consulta = "SELECT * FROM mesas WHERE id = ?"
     mesa = obtener_uno(consulta, (mesa_id,))
@@ -64,6 +70,7 @@ def actualizar_mesa(mesa_id: int, datos_actualizados: MesaCreate):
 
 
 def eliminar_mesa(mesa_id: int):
+    """Elimina una mesa si no tiene reservas futuras."""
     
     #1. comprobar si existe id
     consulta = "SELECT * FROM mesas WHERE id = ?"
@@ -86,6 +93,7 @@ def eliminar_mesa(mesa_id: int):
     return "Mesa eliminada correctamente"
 
 def obtener_mesa_disponible(numero: int, fecha_hora: str):
+    """Busca una mesa disponible por número y fecha."""
     consulta = """
     SELECT * FROM mesas
     WHERE numero = ? AND id NOT IN (
