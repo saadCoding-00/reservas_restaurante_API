@@ -90,4 +90,4 @@ Este proyecto es una API REST para gestionar clientes, mesas, reservas y estadí
 ## Autor y fecha
 
 Autor: Saad Faham
-Fecha: 10 de febrero de 2026
+Fecha: 11 de febrero de 2026
