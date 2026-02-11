@@ -5,10 +5,8 @@ from typing import Optional
 from datetime import datetime
 
 
-# -----------------------
 # Modelo base (común)
 # Aqui van los campos comun
-# -----------------------
 class ClienteBase(BaseModel):
     """Campos comunes del cliente."""
     nombre: str = Field(..., min_length=3) # ... significa obligatorio
@@ -17,21 +15,17 @@ class ClienteBase(BaseModel):
     notas: Optional[str] = None
 
 
-# -----------------------
 # Para crear cliente (POST)
 # solo los campos que necesitamos para crear cliente 
 # y si lo ponen la base de datos entonces no hay que ponerlos
-# -----------------------
 class ClienteCreate(ClienteBase):
     """Modelo para crear un cliente."""
     pass #Aquí no añado nada nuevo, pero la clase debe existir.
 
 
-# -----------------------
 # Para actualizar cliente (PUT)
 # Aqui el usuario puede mandar solo lo que quiere cambiar
 # Por eso todos los campos son opcionales
-# -----------------------
 class ClienteUpdate(BaseModel):
     """Modelo para actualizar un cliente."""
     nombre: Optional[str] = Field(None, min_length=3) # None significa que es opcional 
@@ -40,11 +34,9 @@ class ClienteUpdate(BaseModel):
     notas: Optional[str] = None
 
 
-# -----------------------
 # Para respuestas (GET)
 # Eso lo que devuelve la base de datos
 # Aqui se aparecen id y fecha porque se generan auto en la base de datos
-# -----------------------
 class ClienteResponse(ClienteBase):
     """Modelo de respuesta para cliente."""
     id: int

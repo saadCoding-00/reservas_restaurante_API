@@ -5,9 +5,7 @@ from typing import Optional, Literal
 from datetime import datetime, timedelta
 
 
-# -----------------------
 # Modelo base (común)
-# -----------------------
 class ReservaBase(BaseModel):
 	"""Campos comunes de una reserva."""
 	cliente_id: int = Field(..., ge=1)
@@ -18,9 +16,7 @@ class ReservaBase(BaseModel):
 	notas: Optional[str] = None
 
 
-# -----------------------
 # Para crear reserva (POST)
-# -----------------------
 class ReservaCreate(ReservaBase):
 	"""Modelo para crear una reserva."""
 	@validator("fecha_inicio")
@@ -30,9 +26,7 @@ class ReservaCreate(ReservaBase):
 		return value
 
 
-# -----------------------
 # Para actualizar reserva (PUT)
-# -----------------------
 class ReservaUpdate(BaseModel):
 	"""Modelo para actualizar una reserva."""
 	cliente_id: Optional[int] = Field(None, ge=1)
@@ -49,9 +43,7 @@ class ReservaUpdate(BaseModel):
 		return value
 
 
-# -----------------------
 # Para respuestas (GET)
-# -----------------------
 class ReservaResponse(ReservaBase):
 	"""Modelo de respuesta para reserva."""
 	id: int
